@@ -4,7 +4,6 @@ import (
     "encoding/json"
     "io/ioutil"
     "os"
-    "bytes"
     "log"
     "time"
 
@@ -54,14 +53,6 @@ func(p * Enrichment) Description() string {
     return "Enrich with external tags based on existing tags"
 }
 
-func addBrackets(s string) string {
-    var buf bytes.Buffer
-    buf.WriteString("\"")
-    buf.WriteString(s)
-    buf.WriteString("\"")
-    result := buf.String()
-    return result
-}
 
 func(p * Enrichment) Apply(metrics...telegraf.Metric)[] telegraf.Metric {
     currentTime := time.Now()
@@ -106,9 +97,9 @@ func(p * Enrichment) Apply(metrics...telegraf.Metric)[] telegraf.Metric {
                 for tagKey, tagVal := range enrich[Level1Tag]["LEVEL1TAGS"] {
                         if (tagVal != "") {
                             logPrintf("Add level 1 Tag %s with value %s added", tagKey, tagVal)
-                            metric.AddTag(tagKey, addBrackets(tagVal))
+                            metric.AddTag(tagKey, string(tagVal))
                         } else {
-                            metric.AddTag(tagKey, "\"\"")
+                            metric.AddTag(tagKey, string(""))
                         }
                     }
                     // if twolevels is set add level 2 tags if present
@@ -116,9 +107,9 @@ func(p * Enrichment) Apply(metrics...telegraf.Metric)[] telegraf.Metric {
                     for tagKey, tagVal := range enrich[Level1Tag][Level2Tag] {
                         if (tagVal != "") {
                             logPrintf("Add level 2 Tag %s with value %s added", tagKey, tagVal)
-                            metric.AddTag(tagKey, addBrackets(tagVal))
+                            metric.AddTag(tagKey, string(tagVal))
                         } else {
-                            metric.AddTag(tagKey, "\"\"")
+                            metric.AddTag(tagKey, string(""))
                         }
                     }
                 }
